@@ -1,0 +1,20 @@
+fn: aggregate
+desc: outputs an object representation of the given string
+
+
+.cm-content, .cm-gutter { min-height: 150px; }
+.cm-gutters { margin: 1px; 
+asdfasdf: 
+    adsfsd fdsadf
+    asdfasdf adsf}
+.cm-scroller { overflow: auto; }
+.cm-wrap { border: 1px solid silver }
+
+
+
+fn: converter
+desc: the main function
+
+converter("sand", {thickness: "0.5em"})
+converter("pl = 5 bg = red center")
+
