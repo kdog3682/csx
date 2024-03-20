@@ -1,4 +1,4 @@
-import {getTailwindColor} from "/home/kdog3682/2024-javascript/csx/getColor.js"
+import {parseTailwindColor, getTailwindColor} from "/home/kdog3682/2024-javascript/csx/getColor.js"
 
 import * as assets from "./assets.js"
 import { lcm } from "/home/kdog3682/2023/math-utils.js"
@@ -8,6 +8,16 @@ import { lcm } from "/home/kdog3682/2023/math-utils.js"
 export {
     handlers
 }
+
+const dirAliases = {
+  "l": "left",
+  "t": "top",
+  "r": "right",
+  "b": "bottom",
+  "x": ["left", "right"],
+  "y": ["top", "bottom"],
+};
+
 
 
 function gridTemplate(s) {
@@ -57,7 +67,7 @@ function box(n) {
 
 function colorMatch(s) {
     const [key, index] = parseTailwindColor(s)
-    const complementIndex = 9 - index
+    const complementIndex = 900 - index
     return [
         ["background-color", getTailwindColor(key, index)],
         ["color", getTailwindColor(key, complementIndex)]
@@ -65,7 +75,15 @@ function colorMatch(s) {
 }
 
 
-function stroke({ thickness = 1, paint = "black", dash = "solid" } = {}, dir) {
+function stroke({ thickness = 1, paint = "black", dash = "solid" } = {}, dir, combined) {
+    // console.log(dir)
+    if (isArray(dir)) {
+        const store = []
+        for (const arg of dir) {
+            store.push(...stroke(arguments[0], arg))
+        }
+        return store
+    }
     const a = dir ? `border-${dir}-weight` : "border-weight"
     const b = dir ? `border-${dir}-color` : "border-color"
     const c = dir ? `border-${dir}-style` : "border-style"
@@ -102,6 +120,22 @@ function padding(o, dir) {
     return [[a, o]]
 }
 
+function _padding(n, dir) {
+    return _marginOrPadding(n, dir, 'padding')
+}
+
+function _margin(n, dir) {
+    return _marginOrPadding(n, dir, 'margin')
+}
+function _marginOrPadding(n, dir, key) {
+    dir = dirAliases[dir] || dir
+    if (isArray(dir)) {
+        return dir.map((_dir) => _margin(n, _dir, key)).flat()
+    }
+    const a = dir ? `${key}-${dir}` : key
+    return [[a, n]]
+}
+
 function margin(o, dir) {
     const a = dir ? `margin-${dir}` : "margin"
     return [[a, o]]
@@ -113,11 +147,15 @@ const ref = {
         Object(o) { return helper(o, padding) }
     },
 
+    _margin,
+    _padding,
+
     margin: {
         String(s) { return [["margin", s]] },
         Object(o) { return helper(o, margin) }
     },
 
+    _stroke: stroke,
     stroke: {
         String(s) { return [["border", s]] },
         Object(o) { return helper(o, stroke) }
@@ -207,8 +245,9 @@ const create = (o) => {
     }
 }
 const handlers = dict(ref, create)
-// console.log(handlers.colorMatch('b3'))
+// console.log(handlers._margin(3, 'y'))
 // console.log(handlers.box(5))
 // console.log(handlers.padding({left: 3, right: 5, y: 10}))
 // console.log(handlers.sandwich({paint: 'green'}))
 // console.log(handlers.grid({template: 'ab', rows: '1fr 1fr'}))
+// data[key] is messing up

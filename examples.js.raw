@@ -20,3 +20,12 @@ console.log(converter("sand", {thickness: "0.5em"}))
 console.log(converter("pl = 5 bg = red center"))
 
 ----------------------------------------------------------
+desc: converts to a string (can pass in arg long)
+
+toStyleString(converter("pl:5 fc:g"))
+
+----------------------------------------------------------
+
+desc: simple color parsing
+
+converter('r5 r3 r2')
